@@ -1,0 +1,2033 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#A8BBA2">
+    <meta name="description" content="AN_NUR - Pendamping Ibadah Harian Muslim Modern">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="images/icon-192.png">
+    <title>AN_NUR - Islamic Daily Tracker</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Amiri:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* CSS VARIABLES & RESET */
+        :root {
+            --primary: #A8BBA2;
+            /* Sage Green */
+            --primary-dark: #8A9A85;
+            --secondary: #F5E9D7;
+            /* Beige */
+            --accent: #FFCC99;
+            /* Soft Orange Pastel */
+
+            /* Light Theme */
+            --bg: #FAFAFA;
+            --surface: rgba(255, 255, 255, 0.85);
+            --surface-solid: #FFFFFF;
+            --text-main: #2D3748;
+            --text-muted: #718096;
+            --border: rgba(0, 0, 0, 0.08);
+            --shadow: 0 8px 32px rgba(168, 187, 162, 0.15);
+            --nav-bg: rgba(255, 255, 255, 0.9);
+        }
+
+        .dark-mode {
+            --bg: #121418;
+            --surface: rgba(30, 34, 40, 0.85);
+            --surface-solid: #1E2228;
+            --text-main: #E2E8F0;
+            --text-muted: #A0AEC0;
+            --border: rgba(255, 255, 255, 0.08);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --nav-bg: rgba(30, 34, 40, 0.9);
+            --primary: #8A9A85;
+            --secondary: #2C3539;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* MOBILE CONTAINER */
+        #app {
+            width: 100%;
+            max-width: 480px;
+            /* Mobile size limit for desktop view */
+            background-color: var(--bg);
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 80px;
+            /* Space for bottom nav */
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
+            overflow-x: hidden;
+        }
+
+        /* GLASSMORPHISM UTILITIES */
+        .glass {
+            background: var(--surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .card {
+            background: var(--surface-solid);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            transition: transform 0.2s ease;
+        }
+
+        /* TYPOGRAPHY */
+        h1,
+        h2,
+        h3 {
+            font-weight: 700;
+        }
+
+        .text-arabic {
+            font-family: 'Amiri', serif;
+            font-size: 1.8rem;
+            line-height: 2.5;
+            text-align: right;
+        }
+
+        .text-sm {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .text-primary {
+            color: var(--primary);
+        }
+
+        /* VIEWS */
+        .view {
+            display: none;
+            padding: 24px 20px;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .header-greeting {
+            font-size: 1.2rem;
+        }
+
+        .header-name {
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        .theme-toggle {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        /* DASHBOARD */
+        .quote-card {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+        }
+
+        .quote-text {
+            font-style: italic;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .quote-author {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            text-align: right;
+        }
+
+        .progress-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .circular-progress {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: conic-gradient(var(--primary) 0%, var(--border) 0%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .circular-progress::before {
+            content: "";
+            position: absolute;
+            inset: 6px;
+            background-color: var(--surface-solid);
+            border-radius: 50%;
+        }
+
+        .progress-value {
+            position: relative;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        .streak-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--accent);
+            color: #8A5A2B;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        /* HABIT TRACKER */
+        .habit-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .habit-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-radius: 16px;
+            background: var(--surface-solid);
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+
+        .habit-item.completed {
+            background: rgba(168, 187, 162, 0.1);
+            border-color: var(--primary);
+        }
+
+        .habit-item.completed .habit-name {
+            color: var(--primary);
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        .habit-name {
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        /* Custom Checkbox */
+        .checkbox-wrapper {
+            position: relative;
+            width: 28px;
+            height: 28px;
+        }
+
+        .checkbox-wrapper input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            position: absolute;
+        }
+
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 28px;
+            width: 28px;
+            background-color: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .checkbox-wrapper input:checked~.checkmark {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .checkmark i {
+            color: white;
+            display: none;
+            width: 16px;
+            height: 16px;
+        }
+
+        .checkbox-wrapper input:checked~.checkmark i {
+            display: block;
+        }
+
+        /* QURAN */
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--surface);
+            padding: 12px 16px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 100%;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .surah-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .surah-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+        }
+
+        .surah-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .surah-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--secondary);
+            color: var(--primary-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 700;
+        }
+
+        .surah-info {
+            flex: 1;
+        }
+
+        .surah-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .surah-arabic {
+            font-family: 'Amiri', serif;
+            font-size: 1.4rem;
+            color: var(--primary);
+        }
+
+        /* QURAN DETAIL */
+        .quran-detail-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(to bottom right, var(--surface-solid), var(--secondary));
+            border-radius: 24px;
+            border: 1px solid var(--border);
+        }
+
+        .ayah-card {
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ayah-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .ayah-number {
+            background: var(--primary);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .ayah-text {
+            font-size: 1.8rem;
+            margin-bottom: 16px;
+        }
+
+        .ayah-translation {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+        }
+
+        /* TASBIH */
+        .tasbih-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 60vh;
+        }
+
+        .tasbih-circle {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+            box-shadow: 0 20px 40px rgba(168, 187, 162, 0.4);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s;
+            position: relative;
+        }
+
+        .tasbih-circle:active {
+            transform: scale(0.95);
+        }
+
+        .tasbih-count {
+            font-size: 4.5rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .tasbih-target {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-top: 8px;
+        }
+
+        .tasbih-controls {
+            display: flex;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .btn-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-main);
+            cursor: pointer;
+            box-shadow: var(--shadow);
+        }
+
+        /* JOURNAL & SETTINGS */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 16px;
+            border-radius: 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 1rem;
+            resize: none;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            border-radius: 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-primary:active {
+            opacity: 0.8;
+        }
+
+        .btn-outline {
+            width: 100%;
+            padding: 16px;
+            border-radius: 16px;
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        /* BOTTOM NAV */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 480px;
+            background: var(--nav-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 10px 20px 10px;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-muted);
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.2s;
+            width: 20%;
+        }
+
+        .nav-item i {
+            width: 24px;
+            height: 24px;
+        }
+
+        .nav-item span {
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-item.active i {
+            fill: rgba(168, 187, 162, 0.2);
+        }
+
+        /* LOADING & TOAST */
+        .loader {
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--text-main);
+            color: var(--bg);
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* BACK BUTTON */
+        .btn-back {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        /* SPLASH SCREEN */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        #splash-screen.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .splash-logo-container {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            animation: pulseLogo 2s infinite ease-in-out;
+        }
+
+        .splash-logo {
+            width: 90px;
+            height: 90px;
+            object-fit: contain;
+        }
+
+        .splash-title {
+            color: white;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .splash-subtitle {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        @keyframes pulseLogo {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        /* ONBOARDING */
+        .onboarding-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .onboarding-logo-wrapper {
+            width: 130px;
+            height: 130px;
+            background: var(--surface-solid);
+            border: 1px solid var(--border);
+            border-radius: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .onboarding-logo {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+        }
+
+        .onboarding-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 12px;
+        }
+
+        .onboarding-subtitle {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            line-height: 1.6;
+            max-width: 320px;
+        }
+
+        .onboarding-card {
+            width: 100%;
+            max-width: 360px;
+            padding: 24px;
+        }
+
+        /* DEVELOPER PROFILE SECTION */
+        .dev-profile-card {
+            background: rgba(168, 187, 162, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 12px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .dark-mode .dev-profile-card {
+            background: rgba(138, 154, 133, 0.03);
+        }
+
+        .dev-profile-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary);
+        }
+
+        .dev-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .dev-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(168, 187, 162, 0.2);
+        }
+
+        .dev-avatar i,
+        .dev-avatar svg {
+            width: 22px;
+            height: 22px;
+            flex-shrink: 0;
+        }
+
+        .dev-title-wrapper {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dev-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .dev-role {
+            font-size: 0.8rem;
+            color: var(--primary-dark);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .dev-bio {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .dev-social-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .dev-btn {
+            flex: 1 1 calc(50% - 6px);
+            min-width: 140px;
+            height: 46px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            box-sizing: border-box;
+        }
+
+        .btn-instagram {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+        }
+
+        .btn-instagram:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(168, 187, 162, 0.4);
+            filter: brightness(1.05);
+        }
+
+        .btn-instagram:active {
+            transform: translateY(1px);
+            filter: brightness(0.95);
+            box-shadow: 0 2px 6px rgba(168, 187, 162, 0.2);
+        }
+
+        .btn-github {
+            background: var(--surface-solid);
+            border: 1px solid var(--primary);
+            color: var(--text-main);
+        }
+
+        .btn-github:hover {
+            transform: translateY(-2px);
+            background: rgba(168, 187, 162, 0.08);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-github:active {
+            transform: translateY(1px);
+            background: rgba(168, 187, 162, 0.15);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .dev-btn i,
+        .dev-btn svg {
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .dev-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border-top: 1px dashed var(--border);
+            border-bottom: 1px dashed var(--border);
+            padding: 16px 0;
+            margin-bottom: 16px;
+        }
+
+        .dev-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dev-stat-item i,
+        .dev-stat-item svg {
+            width: 18px;
+            height: 18px;
+            color: var(--primary-dark);
+            flex-shrink: 0;
+        }
+
+        .dev-stat-text {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 0.82rem;
+        }
+
+        .dev-stat-label {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .dev-stat-val {
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .dev-footer {
+            font-size: 0.8rem;
+            text-align: center;
+            color: var(--text-muted);
+            margin-top: 12px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SPLASH SCREEN -->
+    <div id="splash-screen">
+        <div class="splash-logo-container">
+            <img src="images/logo.png" alt="AN_NUR Logo" class="splash-logo">
+        </div>
+        <h1 class="splash-title">AN_NUR</h1>
+        <p class="splash-subtitle">Islamic Daily Tracker</p>
+    </div>
+
+    <div id="app">
+        <!-- TOAST NOTIFICATION -->
+        <div id="toast" class="toast">Notifikasi</div>
+
+        <!-- VIEW: ONBOARDING -->
+        <main id="view-onboarding" class="view">
+            <div class="onboarding-container">
+                <div class="onboarding-logo-wrapper">
+                    <img src="images/logo.png" alt="AN_NUR Logo" class="onboarding-logo">
+                </div>
+                <h1 class="onboarding-title">Selamat Datang</h1>
+                <p class="onboarding-subtitle">Mulai langkah kebaikan hari ini bersama AN_NUR, pendamping ibadah harian
+                    Anda.</p>
+
+                <div class="card glass onboarding-card">
+                    <div class="form-group" style="text-align: left;">
+                        <label for="onboardingNameInput">Nama Panggilan Anda</label>
+                        <input type="text" id="onboardingNameInput" class="form-control"
+                            placeholder="Masukkan nama Anda">
+                    </div>
+                    <button class="btn-primary" onclick="app.completeOnboarding()">Mulai Ibadah</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- VIEW: DASHBOARD -->
+        <main id="view-dashboard" class="view active">
+            <header class="header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <img src="images/logo.png" alt="AN_NUR Logo"
+                        style="height: 38px; width: auto; object-fit: contain;">
+                    <span
+                        style="font-weight: 800; font-size: 1.4rem; color: var(--primary); letter-spacing: 1px;">AN_NUR</span>
+                </div>
+                <button class="theme-toggle" onclick="app.toggleTheme()">
+                    <i data-lucide="moon" id="themeIcon"></i>
+                </button>
+            </header>
+
+            <div style="margin-bottom: 24px;">
+                <p class="header-greeting text-muted" id="greetingText">Assalamu'alaikum,</p>
+                <h1 class="header-name" id="userNameDisplay"
+                    style="font-size: 1.5rem; color: var(--text-main); font-weight: 700;">Hamba Allah</h1>
+            </div>
+
+            <div class="card quote-card glass">
+                <p class="quote-text" id="dailyQuote">"Barangsiapa bertakwa kepada Allah niscaya Dia akan membukakan
+                    jalan keluar baginya."</p>
+                <p class="quote-author" id="dailyQuoteRef">- QS. Ath-Thalaq: 2</p>
+            </div>
+
+            <h3 style="margin: 24px 0 16px;">Ringkasan Hari Ini</h3>
+            <div class="card glass">
+                <div class="progress-section">
+                    <div class="circular-progress" id="dashboardProgressRing">
+                        <span class="progress-value" id="dashboardProgressText">0%</span>
+                    </div>
+                    <div>
+                        <h2 style="font-size: 1.2rem; margin-bottom: 4px;">Progress Ibadah</h2>
+                        <p class="text-sm" id="dashboardDate">Sabtu, 27 Juni 2026</p>
+                        <div class="streak-badge" id="streakBadge">
+                            <i data-lucide="flame" style="width: 14px; height: 14px;"></i>
+                            <span id="streakCountText">0 Hari Streak</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px;">
+                <div class="card glass" style="text-align: center; cursor:pointer;" onclick="app.navigate('quran')">
+                    <div
+                        style="background: var(--secondary); width: 48px; height: 48px; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; color: var(--primary-dark);">
+                        <i data-lucide="book-open"></i>
+                    </div>
+                    <h4>Terakhir Baca</h4>
+                    <p class="text-sm text-primary" style="margin-top:4px;" id="lastReadDash">Al-Fatihah : 1</p>
+                </div>
+                <div class="card glass" style="text-align: center; cursor:pointer;" onclick="app.navigate('tasbih')">
+                    <div
+                        style="background: var(--accent); width: 48px; height: 48px; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; color: #8A5A2B;">
+                        <i data-lucide="activity"></i>
+                    </div>
+                    <h4>Total Dzikir</h4>
+                    <p class="text-sm text-primary" style="margin-top:4px;" id="totalDzikirDash">0 Kali</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- VIEW: HABITS -->
+        <main id="view-habits" class="view">
+            <div class="header">
+                <h2>Habit Tracker</h2>
+                <div class="text-sm" id="habitDateHeader">Hari Ini</div>
+            </div>
+
+            <div class="card glass" style="margin-bottom: 24px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span style="font-weight: 600;">Progress Harian</span>
+                    <span id="habitProgressText" class="text-primary" style="font-weight: 700;">0%</span>
+                </div>
+                <div style="width: 100%; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
+                    <div id="habitProgressBar"
+                        style="width: 0%; height: 100%; background: var(--primary); transition: width 0.3s ease; border-radius: 4px;">
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: 16px; font-size: 1.1rem;">Shalat Wajib</h3>
+            <div class="habit-list" id="wajibHabitsList">
+                <!-- Injected via JS -->
+            </div>
+
+            <h3 style="margin: 24px 0 16px; font-size: 1.1rem;">Sunnah & Amalan</h3>
+            <div class="habit-list" id="sunnahHabitsList">
+                <!-- Injected via JS -->
+            </div>
+            <div style="height: 40px;"></div>
+        </main>
+
+        <!-- VIEW: QURAN LIST -->
+        <main id="view-quran" class="view">
+            <div class="header">
+                <h2>Al-Qur'an</h2>
+            </div>
+            <div class="search-box">
+                <i data-lucide="search" class="text-muted"></i>
+                <input type="text" id="searchSurah" placeholder="Cari surat (ex: Yasin, Al-Mulk)..."
+                    oninput="app.filterQuran()">
+            </div>
+
+            <div id="quranListLoader" class="loader"></div>
+
+            <div id="quranErrorContainer" class="card glass"
+                style="display: none; text-align: center; padding: 24px; margin-top: 10px;">
+                <i data-lucide="alert-circle"
+                    style="width: 48px; height: 48px; color: #E53E3E; margin: 0 auto 12px; display: block;"></i>
+                <h4 style="margin-bottom: 8px; font-weight: 700;">Gagal Memuat Al-Qur'an</h4>
+                <p class="text-sm" style="margin-bottom: 20px; color: var(--text-muted);">Koneksi internet bermasalah
+                    atau server sedang sibuk. Silakan coba beberapa saat lagi.</p>
+                <button class="btn-primary" onclick="app.fetchQuranList()"
+                    style="max-width: 200px; margin: 0 auto; padding: 12px 24px; border-radius: 12px; display: block; height: auto; width: auto;">Coba
+                    Lagi</button>
+            </div>
+
+            <div class="surah-list card glass" id="surahListContainer"
+                style="display: none; padding: 10px; background: transparent; border:none; box-shadow:none;">
+                <!-- Injected via JS -->
+            </div>
+        </main>
+
+        <!-- VIEW: QURAN DETAIL -->
+        <main id="view-quran-detail" class="view">
+            <div class="btn-back" onclick="app.navigate('quran')">
+                <i data-lucide="arrow-left"></i> Kembali ke Daftar
+            </div>
+
+            <div id="quranDetailLoader" class="loader"></div>
+
+            <div id="quranDetailErrorContainer" class="card glass"
+                style="display: none; text-align: center; padding: 24px; margin-top: 10px;">
+                <i data-lucide="alert-circle"
+                    style="width: 48px; height: 48px; color: #E53E3E; margin: 0 auto 12px; display: block;"></i>
+                <h4 style="margin-bottom: 8px; font-weight: 700;">Gagal Memuat Detail Surat</h4>
+                <p class="text-sm" style="margin-bottom: 20px; color: var(--text-muted);">Koneksi internet bermasalah
+                    atau server sedang sibuk. Silakan coba beberapa saat lagi.</p>
+                <button class="btn-primary" id="btnRetryDetail"
+                    style="max-width: 200px; margin: 0 auto; padding: 12px 24px; border-radius: 12px; display: block; height: auto; width: auto;">Coba
+                    Lagi</button>
+            </div>
+
+            <div id="quranDetailContent" style="display: none;">
+                <div class="quran-detail-header glass">
+                    <h2 id="detailSurahLatin" style="font-size: 1.8rem; margin-bottom: 4px;">Surat Name</h2>
+                    <p id="detailSurahTranslation" class="text-muted" style="margin-bottom: 12px;">Translation</p>
+                    <p id="detailSurahArabic" class="text-arabic"
+                        style="font-size: 2.5rem; color: var(--primary); margin-bottom: 10px;">Name Arabic</p>
+                    <div
+                        style="display: inline-flex; background: var(--bg); padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; border: 1px solid var(--border);">
+                        <span id="detailSurahType">Makkiyah</span> • <span id="detailSurahAyatCount">0</span> Ayat
+                    </div>
+                </div>
+
+                <!-- Audio Player -->
+                <div class="card glass" style="display: flex; align-items: center; gap: 16px;">
+                    <button class="btn-icon" style="background: var(--primary); color: white;" id="btnPlayAudio"
+                        onclick="app.toggleAudio()">
+                        <i data-lucide="play" id="audioIcon"></i>
+                    </button>
+                    <div style="flex:1;">
+                        <p style="font-weight: 600; font-size: 0.9rem;">Murottal Misyari Rasyid</p>
+                        <div
+                            style="width: 100%; height: 4px; background: var(--border); border-radius: 2px; margin-top: 8px; position:relative;">
+                            <div id="audioProgress"
+                                style="width: 0%; height: 100%; background: var(--primary); border-radius: 2px; position:absolute; top:0; left:0;">
+                            </div>
+                        </div>
+                    </div>
+                    <audio id="quranAudio" style="display:none;"></audio>
+                </div>
+
+                <div id="ayahsContainer" class="card glass"
+                    style="padding: 10px; background: transparent; border:none; box-shadow:none;">
+                    <!-- Ayahs injected via JS -->
+                </div>
+            </div>
+        </main>
+
+        <!-- VIEW: TASBIH -->
+        <main id="view-tasbih" class="view">
+            <div class="header">
+                <h2>Tasbih Digital</h2>
+            </div>
+
+            <div class="card glass tasbih-container">
+                <div class="tasbih-circle" onclick="app.incrementTasbih()" id="tasbihCircle">
+                    <span class="tasbih-count" id="tasbihCount">0</span>
+                    <span class="tasbih-target" id="tasbihTargetText">Target: 33</span>
+                </div>
+
+                <div class="tasbih-controls">
+                    <button class="btn-icon" onclick="app.resetTasbih()" title="Reset">
+                        <i data-lucide="rotate-ccw"></i>
+                    </button>
+                    <button class="btn-icon" onclick="app.changeTasbihTarget()" title="Ubah Target">
+                        <i data-lucide="target"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="card glass">
+                <h3 style="font-size: 1rem; margin-bottom: 12px;">Catatan Dzikir</h3>
+                <div class="form-group">
+                    <textarea id="dzikirNote" class="form-control" rows="2"
+                        placeholder="Tuliskan dzikir yang sedang dibaca (misal: Subhanallah)..."></textarea>
+                </div>
+            </div>
+        </main>
+
+        <!-- VIEW: SETTINGS & JOURNAL -->
+        <main id="view-settings" class="view">
+            <div class="header">
+                <h2>Jurnal & Profil</h2>
+            </div>
+
+            <div class="card glass">
+                <h3 style="margin-bottom: 16px;">Jurnal Hari Ini</h3>
+                <div class="form-group">
+                    <textarea id="journalText" class="form-control" rows="4"
+                        placeholder="Apa yang Anda syukuri hari ini?"></textarea>
+                </div>
+                <button class="btn-primary" onclick="app.saveJournal()">Simpan Jurnal</button>
+            </div>
+
+            <div class="card glass">
+                <h3 style="margin-bottom: 16px;">Pengaturan Profil</h3>
+                <div class="form-group">
+                    <label>Nama Pengguna</label>
+                    <input type="text" id="inputName" class="form-control" placeholder="Masukkan nama">
+                </div>
+                <button class="btn-primary" onclick="app.saveName()">Simpan Nama</button>
+            </div>
+
+            <div class="card glass">
+                <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 16px;">
+                    <img src="images/logo.png" alt="AN_NUR Logo"
+                        style="height: 48px; width: auto; object-fit: contain; background: rgba(168,187,162,0.1); padding: 6px; border-radius: 12px; border: 1px solid var(--border);">
+                    <div>
+                        <h3 style="margin: 0;">Tentang Aplikasi</h3>
+                        <p class="text-sm">Versi 1.0.0</p>
+                    </div>
+                </div>
+                <p style="font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); margin-bottom: 16px;">
+                    AN_NUR adalah pendamping ibadah harian modern untuk membantu melacak shalat wajib, amalan sunnah,
+                    membaca Al-Qur'an, dzikir harian, serta merefleksikan diri melalui jurnal.
+                </p>
+
+                <!-- Tentang Developer Section -->
+                <div class="developer-section"
+                    style="border-top: 1px solid var(--border); padding-top: 20px; margin-top: 20px;">
+                    <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 16px;">✨ Tentang Developer</h4>
+
+                    <div class="dev-profile-card">
+                        <div class="dev-header">
+                            <div class="dev-avatar">
+                                <i data-lucide="user"></i>
+                            </div>
+                            <div class="dev-title-wrapper">
+                                <h5 class="dev-name">Muhammad Jamal</h5>
+                                <span class="dev-role">Founder & Developer AN_NUR</span>
+                            </div>
+                        </div>
+
+                        <p class="dev-bio">
+                            Muhammad Jamal adalah santri Pondok Pesantren Tahfidz Qur'an AN_NUR Indonesia yang menekuni
+                            dunia pemrograman dan teknologi. Dengan semangat dakwah, ia bercita-cita menjadi programmer
+                            yang menghadirkan teknologi bermanfaat untuk umat dan dakwah Islam di era digital.
+                        </p>
+
+                        <div class="dev-social-buttons">
+                            <a href="https://instagram.com/muhammadjamal_1429" target="_blank"
+                                class="dev-btn btn-instagram">
+                                <i data-lucide="instagram"></i>
+                                <span>Instagram</span>
+                            </a>
+                            <a href="https://github.com/Mhdjamal287" target="_blank" class="dev-btn btn-github">
+                                <i data-lucide="github"></i>
+                                <span>GitHub</span>
+                            </a>
+                        </div>
+
+                        <div class="dev-stats">
+                            <div class="dev-stat-item">
+                                <i data-lucide="rocket"></i>
+                                <div class="dev-stat-text">
+                                    <span class="dev-stat-label">Versi Aplikasi</span>
+                                    <span class="dev-stat-val">v1.0.0</span>
+                                </div>
+                            </div>
+                            <div class="dev-stat-item">
+                                <i data-lucide="smartphone"></i>
+                                <div class="dev-stat-text">
+                                    <span class="dev-stat-label">Platform</span>
+                                    <span class="dev-stat-val">Android & Web</span>
+                                </div>
+                            </div>
+                            <div class="dev-stat-item">
+                                <i data-lucide="compass"></i>
+                                <div class="dev-stat-text">
+                                    <span class="dev-stat-label">Tema</span>
+                                    <span class="dev-stat-val">Islamic Productivity App</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dev-footer">
+                            Terima kasih telah menggunakan AN_NUR
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card glass">
+                <h3 style="margin-bottom: 16px; color: #E53E3E;">Data Sistem</h3>
+                <button class="btn-outline" onclick="app.exportData()">Export Data (Backup)</button>
+                <button class="btn-outline" onclick="app.resetData()"
+                    style="color: #E53E3E; border-color: #E53E3E;">Reset Semua Data</button>
+            </div>
+            <div style="height: 20px;"></div>
+        </main>
+
+        <!-- BOTTOM NAVIGATION -->
+        <nav class="bottom-nav">
+            <a class="nav-item active" onclick="app.navigate('dashboard')" id="nav-dashboard">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Home</span>
+            </a>
+            <a class="nav-item" onclick="app.navigate('habits')" id="nav-habits">
+                <i data-lucide="check-square"></i>
+                <span>Habits</span>
+            </a>
+            <a class="nav-item" onclick="app.navigate('quran')" id="nav-quran">
+                <i data-lucide="book"></i>
+                <span>Qur'an</span>
+            </a>
+            <a class="nav-item" onclick="app.navigate('tasbih')" id="nav-tasbih">
+                <i data-lucide="aperture"></i>
+                <span>Tasbih</span>
+            </a>
+            <a class="nav-item" onclick="app.navigate('settings')" id="nav-settings">
+                <i data-lucide="user"></i>
+                <span>Profil</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const app = {
+            // --- STATE MANAGEMENT ---
+            state: {
+                user: { name: "Hamba Allah", theme: "light", onboardingCompleted: false },
+                habits: {}, // Format: { "YYYY-MM-DD": { shubuh: true, ... } }
+                tasbih: { count: 0, target: 33, total: 0 },
+                journal: {}, // Format: { "YYYY-MM-DD": "text" }
+                quran: { lastRead: null, favorites: [] },
+                quranDataCache: null // Cache for surah list
+            },
+
+            habitDefs: [
+                { id: 'shubuh', label: 'Shubuh', type: 'wajib' },
+                { id: 'dzuhur', label: 'Dzuhur', type: 'wajib' },
+                { id: 'ashar', label: 'Ashar', type: 'wajib' },
+                { id: 'maghrib', label: 'Maghrib', type: 'wajib' },
+                { id: 'isya', label: 'Isya', type: 'wajib' },
+                { id: 'dhuha', label: 'Dhuha', type: 'sunnah' },
+                { id: 'tilawah', label: 'Tilawah Qur\'an', type: 'sunnah' },
+                { id: 'dzikirPagi', label: 'Dzikir Pagi', type: 'sunnah' },
+                { id: 'dzikirPetang', label: 'Dzikir Petang', type: 'sunnah' },
+                { id: 'sedekah', label: 'Sedekah', type: 'sunnah' },
+                { id: 'shalawat', label: 'Shalawat', type: 'sunnah' }
+            ],
+
+            quotes: [
+                { text: "Barangsiapa bertakwa kepada Allah niscaya Dia akan membukakan jalan keluar baginya.", ref: "QS. Ath-Thalaq: 2" },
+                { text: "Maka sesungguhnya bersama kesulitan ada kemudahan.", ref: "QS. Al-Insyirah: 5" },
+                { text: "Dan bersabarlah, sesungguhnya Allah bersama orang-orang yang sabar.", ref: "QS. Al-Anfal: 46" },
+                { text: "Janganlah kamu bersedih, sesungguhnya Allah bersama kita.", ref: "QS. At-Taubah: 40" },
+                { text: "Allah tidak membebani seseorang melainkan sesuai dengan kesanggupannya.", ref: "QS. Al-Baqarah: 286" }
+            ],
+
+            todayStr: '',
+
+            // --- INITIALIZATION ---
+            init() {
+                this.todayStr = this.getTodayString();
+                this.loadData();
+                this.applyTheme(this.state.user.theme);
+
+                // Initialize Icons
+                lucide.createIcons();
+
+                // Setup UI
+                this.setupDashboard();
+                this.renderHabits();
+                this.setupTasbih();
+                this.setupSettings();
+
+                // Setup Audio Listener
+                const audio = document.getElementById('quranAudio');
+                audio.addEventListener('timeupdate', () => {
+                    const progress = (audio.currentTime / audio.duration) * 100;
+                    document.getElementById('audioProgress').style.width = `${progress}%`;
+                });
+                audio.addEventListener('ended', () => {
+                    document.getElementById('audioIcon').setAttribute('data-lucide', 'play');
+                    lucide.createIcons();
+                    document.getElementById('audioProgress').style.width = `0%`;
+                });
+
+                // Initialize PWA Simulation (Manifest & SW injection)
+                this.initPWASimulation();
+
+                // Splash Screen and Onboarding redirection flow
+                const showOnboarding = !this.state.user.onboardingCompleted && this.state.user.name === "Hamba Allah";
+                setTimeout(() => {
+                    const splash = document.getElementById('splash-screen');
+                    if (splash) {
+                        splash.classList.add('fade-out');
+                    }
+                    if (showOnboarding) {
+                        this.navigate('onboarding');
+                    } else {
+                        this.navigate('dashboard');
+                    }
+                }, 1500);
+            },
+
+            getTodayString() {
+                const d = new Date();
+                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            },
+
+            loadData() {
+                const saved = localStorage.getItem('annur_data');
+                if (saved) {
+                    try {
+                        const parsed = JSON.parse(saved);
+                        this.state = { ...this.state, ...parsed };
+                    } catch (e) { console.error("Error loading data"); }
+                }
+                // Initialize today's habit object if empty
+                if (!this.state.habits[this.todayStr]) {
+                    this.state.habits[this.todayStr] = {};
+                    this.habitDefs.forEach(h => this.state.habits[this.todayStr][h.id] = false);
+                }
+            },
+
+            saveData() {
+                localStorage.setItem('annur_data', JSON.stringify(this.state));
+            },
+
+            showToast(msg) {
+                const toast = document.getElementById('toast');
+                toast.textContent = msg;
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 3000);
+            },
+
+            // --- NAVIGATION ---
+            navigate(viewId) {
+                // Hide all views
+                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+                // Stop audio if playing and navigating away from detail
+                if (viewId !== 'quran-detail') {
+                    const audio = document.getElementById('quranAudio');
+                    if (!audio.paused) { audio.pause(); document.getElementById('audioIcon').setAttribute('data-lucide', 'play'); lucide.createIcons(); }
+                }
+
+                const bottomNav = document.querySelector('.bottom-nav');
+                if (viewId === 'onboarding') {
+                    if (bottomNav) bottomNav.style.display = 'none';
+                    document.getElementById('view-onboarding').classList.add('active');
+                } else {
+                    if (bottomNav) bottomNav.style.display = 'flex';
+                    if (viewId === 'quran-detail') {
+                        document.getElementById('view-quran-detail').classList.add('active');
+                        // Keep quran nav active
+                        document.getElementById('nav-quran').classList.add('active');
+                    } else {
+                        document.getElementById(`view-${viewId}`).classList.add('active');
+                        document.getElementById(`nav-${viewId}`).classList.add('active');
+                    }
+                }
+
+                // Update specific view data
+                if (viewId === 'dashboard') this.setupDashboard();
+                if (viewId === 'habits') this.updateHabitProgressUI();
+                if (viewId === 'quran' && !this.state.quranDataCache) this.fetchQuranList();
+            },
+
+            completeOnboarding() {
+                const nameInput = document.getElementById('onboardingNameInput');
+                const name = nameInput.value.trim();
+                if (!name) {
+                    this.showToast("Silakan masukkan nama Anda terlebih dahulu.");
+                    return;
+                }
+                this.state.user.name = name;
+                this.state.user.onboardingCompleted = true;
+                this.saveData();
+
+                // Update greeting UI
+                document.getElementById('userNameDisplay').textContent = name;
+                document.getElementById('inputName').value = name;
+
+                // Transition to Dashboard
+                this.navigate('dashboard');
+                this.showToast("Selamat datang di AN_NUR!");
+            },
+
+            // --- THEME ---
+            toggleTheme() {
+                const newTheme = this.state.user.theme === 'light' ? 'dark' : 'light';
+                this.state.user.theme = newTheme;
+                this.applyTheme(newTheme);
+                this.saveData();
+            },
+
+            applyTheme(theme) {
+                const icon = document.getElementById('themeIcon');
+                if (theme === 'dark') {
+                    document.body.classList.add('dark-mode');
+                    icon.setAttribute('data-lucide', 'sun');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    icon.setAttribute('data-lucide', 'moon');
+                }
+                lucide.createIcons();
+            },
+
+            // --- DASHBOARD ---
+            setupDashboard() {
+                // Greeting Time
+                const hour = new Date().getHours();
+                let greet = "Assalamu'alaikum,";
+                if (hour >= 3 && hour < 10) greet = "Selamat Pagi,";
+                else if (hour >= 10 && hour < 15) greet = "Selamat Siang,";
+                else if (hour >= 15 && hour < 18) greet = "Selamat Sore,";
+                else greet = "Selamat Malam,";
+                document.getElementById('greetingText').textContent = greet;
+
+                // Name
+                document.getElementById('userNameDisplay').textContent = this.state.user.name;
+
+                // Date String (Indonesian)
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                document.getElementById('dashboardDate').textContent = new Date().toLocaleDateString('id-ID', options);
+
+                // Random Quote based on day
+                const dayIndex = new Date().getDate() % this.quotes.length;
+                document.getElementById('dailyQuote').textContent = `"${this.quotes[dayIndex].text}"`;
+                document.getElementById('dailyQuoteRef').textContent = `- ${this.quotes[dayIndex].ref}`;
+
+                // Progress Calculation
+                const todayHabits = this.state.habits[this.todayStr];
+                let completed = 0;
+                let total = this.habitDefs.length;
+                this.habitDefs.forEach(h => { if (todayHabits[h.id]) completed++; });
+                const percent = Math.round((completed / total) * 100) || 0;
+
+                document.getElementById('dashboardProgressText').textContent = `${percent}%`;
+                document.getElementById('dashboardProgressRing').style.background = `conic-gradient(var(--primary) ${percent}%, var(--border) 0%)`;
+
+                // Streak Calculation
+                const streak = this.calculateStreak();
+                document.getElementById('streakCountText').textContent = `${streak} Hari Streak`;
+
+                // Dashboard Stats Update
+                document.getElementById('totalDzikirDash').textContent = `${this.state.tasbih.total} Kali`;
+                if (this.state.quran.lastRead) {
+                    document.getElementById('lastReadDash').textContent = `${this.state.quran.lastRead.surahName} : ${this.state.quran.lastRead.ayat}`;
+                } else {
+                    document.getElementById('lastReadDash').textContent = `Belum ada`;
+                }
+            },
+
+            calculateStreak() {
+                let streak = 0;
+                let d = new Date();
+                // Check backwards
+                while (true) {
+                    const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                    const habits = this.state.habits[dateStr];
+                    if (!habits) break; // No data for that day
+
+                    // Criteria for a 'streak' day: All wajib prayers done
+                    const wajibIds = this.habitDefs.filter(h => h.type === 'wajib').map(h => h.id);
+                    let allWajibDone = true;
+                    for (let id of wajibIds) {
+                        if (!habits[id]) { allWajibDone = false; break; }
+                    }
+
+                    if (allWajibDone) {
+                        streak++;
+                        d.setDate(d.getDate() - 1);
+                    } else {
+                        // If today is not done yet, don't break streak if yesterday was done.
+                        if (streak === 0 && dateStr === this.todayStr) {
+                            d.setDate(d.getDate() - 1);
+                        } else {
+                            break;
+                        }
+                    }
+                }
+                return streak;
+            },
+
+            // --- HABITS ---
+            renderHabits() {
+                const wajibContainer = document.getElementById('wajibHabitsList');
+                const sunnahContainer = document.getElementById('sunnahHabitsList');
+                wajibContainer.innerHTML = '';
+                sunnahContainer.innerHTML = '';
+
+                const todayData = this.state.habits[this.todayStr];
+
+                this.habitDefs.forEach(habit => {
+                    const isChecked = todayData[habit.id] || false;
+                    const html = `
+                <div class="habit-item card glass ${isChecked ? 'completed' : ''}" style="margin-bottom:0;" onclick="app.toggleHabit('${habit.id}', this)">
+                    <span class="habit-name">${habit.label}</span>
+                    <label class="checkbox-wrapper" onclick="event.stopPropagation()">
+                        <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="app.toggleHabit('${habit.id}', this.closest('.habit-item'))">
+                        <span class="checkmark"><i data-lucide="check"></i></span>
+                    </label>
+                </div>
+            `;
+                    if (habit.type === 'wajib') wajibContainer.insertAdjacentHTML('beforeend', html);
+                    else sunnahContainer.insertAdjacentHTML('beforeend', html);
+                });
+                lucide.createIcons();
+                this.updateHabitProgressUI();
+            },
+
+            toggleHabit(id, element) {
+                const checkbox = element.querySelector('input');
+                // if called from div click, toggle checkbox manually
+                if (event.currentTarget === element) {
+                    checkbox.checked = !checkbox.checked;
+                }
+
+                const isCompleted = checkbox.checked;
+                this.state.habits[this.todayStr][id] = isCompleted;
+
+                if (isCompleted) element.classList.add('completed');
+                else element.classList.remove('completed');
+
+                this.saveData();
+                this.updateHabitProgressUI();
+            },
+
+            updateHabitProgressUI() {
+                const todayHabits = this.state.habits[this.todayStr];
+                let completed = 0;
+                this.habitDefs.forEach(h => { if (todayHabits[h.id]) completed++; });
+                const percent = Math.round((completed / this.habitDefs.length) * 100) || 0;
+
+                document.getElementById('habitProgressText').textContent = `${percent}%`;
+                document.getElementById('habitProgressBar').style.width = `${percent}%`;
+            },
+
+            // --- TASBIH ---
+            setupTasbih() {
+                document.getElementById('tasbihCount').textContent = this.state.tasbih.count;
+                document.getElementById('tasbihTargetText').textContent = `Target: ${this.state.tasbih.target}`;
+                document.getElementById('totalDzikirDash').textContent = `${this.state.tasbih.total} Kali`;
+            },
+
+            incrementTasbih() {
+                this.state.tasbih.count++;
+                this.state.tasbih.total++;
+                document.getElementById('tasbihCount').textContent = this.state.tasbih.count;
+
+                // Haptic feedback simulation & Animation
+                const circle = document.getElementById('tasbihCircle');
+                circle.style.transform = 'scale(0.95)';
+                setTimeout(() => circle.style.transform = 'scale(1)', 100);
+                if (navigator.vibrate) navigator.vibrate(50);
+
+                if (this.state.tasbih.count === this.state.tasbih.target) {
+                    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                    this.showToast(`Alhamdulillah, target ${this.state.tasbih.target} tercapai!`);
+                }
+                this.saveData();
+            },
+
+            resetTasbih() {
+                this.state.tasbih.count = 0;
+                document.getElementById('tasbihCount').textContent = '0';
+                this.saveData();
+            },
+
+            changeTasbihTarget() {
+                const targets = [33, 99, 100, 1000];
+                let currIdx = targets.indexOf(this.state.tasbih.target);
+                let nextIdx = (currIdx + 1) % targets.length;
+                this.state.tasbih.target = targets[nextIdx];
+                document.getElementById('tasbihTargetText').textContent = `Target: ${this.state.tasbih.target}`;
+                this.saveData();
+                this.showToast(`Target diubah ke ${this.state.tasbih.target}`);
+            },
+
+            // --- API HELPER WITH TIMEOUT & RETRY ---
+            async fetchWithTimeoutAndRetry(url, options = {}, timeoutMs = 8000, maxRetries = 3) {
+                let lastError;
+                for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+                    try {
+                        const response = await fetch(url, {
+                            ...options,
+                            signal: controller.signal
+                        });
+                        clearTimeout(timeoutId);
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+
+                        const json = await response.json();
+                        if (json && (json.data || json.code === 200)) {
+                            return json;
+                        } else {
+                            throw new Error("Invalid API response format");
+                        }
+                    } catch (error) {
+                        clearTimeout(timeoutId);
+                        lastError = error;
+                        console.warn(`Attempt ${attempt} failed for ${url}:`, error);
+                        if (attempt < maxRetries) {
+                            await new Promise(resolve => setTimeout(resolve, attempt * 1000));
+                        }
+                    }
+                }
+                throw lastError;
+            },
+
+            // --- QURAN ---
+            async fetchQuranList() {
+                document.getElementById('quranListLoader').style.display = 'block';
+                document.getElementById('surahListContainer').style.display = 'none';
+                document.getElementById('quranErrorContainer').style.display = 'none';
+
+                try {
+                    const json = await this.fetchWithTimeoutAndRetry('https://equran.id/api/v2/surat');
+                    this.state.quranDataCache = json.data;
+                    this.renderQuranList(this.state.quranDataCache);
+                    document.getElementById('quranListLoader').style.display = 'none';
+                    document.getElementById('surahListContainer').style.display = 'flex';
+                } catch (error) {
+                    console.error("fetchQuranList failed:", error);
+                    document.getElementById('quranListLoader').style.display = 'none';
+                    document.getElementById('surahListContainer').style.display = 'none';
+                    document.getElementById('quranErrorContainer').style.display = 'block';
+                    this.showToast("Gagal memuat daftar surat.");
+                }
+            },
+
+            renderQuranList(surahs) {
+                const container = document.getElementById('surahListContainer');
+                container.innerHTML = '';
+
+                if (!surahs || surahs.length === 0) {
+                    container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted);">Tidak ada surat yang ditemukan.</div>`;
+                    return;
+                }
+
+                surahs.forEach(surah => {
+                    const html = `
+                <div class="surah-item card glass" style="margin-bottom:0;" onclick="app.openSurah(${surah.nomor})">
+                    <div class="surah-number">${surah.nomor}</div>
+                    <div class="surah-info">
+                        <div class="surah-name">${surah.namaLatin}</div>
+                        <div class="text-sm">${surah.arti} • ${surah.jumlahAyat} Ayat</div>
+                    </div>
+                    <div class="surah-arabic">${surah.nama}</div>
+                </div>
+            `;
+                    container.insertAdjacentHTML('beforeend', html);
+                });
+            },
+
+            filterQuran() {
+                const query = document.getElementById('searchSurah').value.toLowerCase();
+                if (!this.state.quranDataCache) return;
+
+                const filtered = this.state.quranDataCache.filter(s =>
+                    s.namaLatin.toLowerCase().includes(query) ||
+                    s.arti.toLowerCase().includes(query)
+                );
+                this.renderQuranList(filtered);
+            },
+
+            async openSurah(nomor) {
+                this.navigate('quran-detail');
+                document.getElementById('quranDetailContent').style.display = 'none';
+                document.getElementById('quranDetailErrorContainer').style.display = 'none';
+                document.getElementById('quranDetailLoader').style.display = 'block';
+
+                document.getElementById('btnRetryDetail').onclick = () => app.openSurah(nomor);
+
+                try {
+                    const json = await this.fetchWithTimeoutAndRetry(`https://equran.id/api/v2/surat/${nomor}`);
+                    const surah = json.data;
+
+                    // Header
+                    document.getElementById('detailSurahLatin').textContent = surah.namaLatin;
+                    document.getElementById('detailSurahTranslation').textContent = surah.arti;
+                    document.getElementById('detailSurahArabic').textContent = surah.nama;
+                    document.getElementById('detailSurahType').textContent = surah.tempatTurun;
+                    document.getElementById('detailSurahAyatCount').textContent = surah.jumlahAyat;
+
+                    // Audio Setup (using Misyari Rasyid Al-Afasi usually key '05' in equran API)
+                    let audioUrl = "";
+                    if (surah.audioFull) {
+                        audioUrl = surah.audioFull['05'] || surah.audioFull['01'] || Object.values(surah.audioFull)[0] || "";
+                    }
+                    const audioEl = document.getElementById('quranAudio');
+                    const audioCard = audioEl.closest('.card');
+
+                    if (audioUrl) {
+                        audioEl.src = audioUrl;
+                        if (audioCard) audioCard.style.display = 'flex';
+                        document.getElementById('audioIcon').setAttribute('data-lucide', 'play');
+                        lucide.createIcons();
+                        document.getElementById('audioProgress').style.width = `0%`;
+                    } else {
+                        audioEl.removeAttribute('src');
+                        if (audioCard) audioCard.style.display = 'none';
+                    }
+
+                    // Ayahs
+                    const container = document.getElementById('ayahsContainer');
+                    container.innerHTML = '';
+
+                    // Bismillah if not surah 1 or 9
+                    if (nomor !== 1 && nomor !== 9) {
+                        container.innerHTML += `<div class="text-arabic" style="text-align:center; margin-bottom: 24px; font-size:2rem;">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</div>`;
+                    }
+
+                    surah.ayat.forEach(ayat => {
+                        const html = `
+                    <div class="ayah-card" id="ayat-${nomor}-${ayat.nomorAyat}">
+                        <div class="ayah-header">
+                            <div class="ayah-number">${ayat.nomorAyat}</div>
+                            <div style="display:flex; gap:10px;">
+                                <i data-lucide="bookmark" style="width:20px; color:var(--text-muted); cursor:pointer;" onclick="app.setLastRead(${nomor}, null, ${ayat.nomorAyat})"></i>
+                            </div>
+                        </div>
+                        <div class="ayah-text text-arabic">${ayat.teksArab}</div>
+                        <div class="ayah-translation">${ayat.teksIndonesia}</div>
+                    </div>
+                `;
+                        container.insertAdjacentHTML('beforeend', html);
+                    });
+                    lucide.createIcons();
+
+                    // Save last read just by opening
+                    this.setLastRead(nomor, surah.namaLatin, 1, false);
+
+                    document.getElementById('quranDetailLoader').style.display = 'none';
+                    document.getElementById('quranDetailContent').style.display = 'block';
+                } catch (error) {
+                    console.error("openSurah failed:", error);
+                    document.getElementById('quranDetailLoader').style.display = 'none';
+                    document.getElementById('quranDetailContent').style.display = 'none';
+                    document.getElementById('quranDetailErrorContainer').style.display = 'block';
+                    this.showToast("Gagal memuat detail surat.");
+                }
+            },
+
+            toggleAudio() {
+                const audio = document.getElementById('quranAudio');
+                const icon = document.getElementById('audioIcon');
+
+                if (audio.paused) {
+                    audio.play();
+                    icon.setAttribute('data-lucide', 'pause');
+                } else {
+                    audio.pause();
+                    icon.setAttribute('data-lucide', 'play');
+                }
+                lucide.createIcons();
+            },
+
+            setLastRead(surahNomor, surahName, ayatNomor, showToastMsg = true) {
+                if (!surahName && this.state.quranDataCache) {
+                    const found = this.state.quranDataCache.find(s => s.nomor === surahNomor);
+                    if (found) surahName = found.namaLatin;
+                }
+                if (!surahName) {
+                    const headerEl = document.getElementById('detailSurahLatin');
+                    if (headerEl) surahName = headerEl.textContent;
+                }
+                if (!surahName) surahName = "Surat";
+
+                this.state.quran.lastRead = { surah: surahNomor, surahName: surahName, ayat: ayatNomor };
+                this.saveData();
+                if (showToastMsg) this.showToast(`Disimpan sebagai terakhir dibaca: ${surahName} ayat ${ayatNomor}`);
+            },
+
+            // --- SETTINGS & JOURNAL ---
+            setupSettings() {
+                document.getElementById('inputName').value = this.state.user.name;
+                document.getElementById('journalText').value = this.state.journal[this.todayStr] || '';
+            },
+
+            saveName() {
+                const name = document.getElementById('inputName').value.trim();
+                if (name) {
+                    this.state.user.name = name;
+                    this.saveData();
+                    document.getElementById('userNameDisplay').textContent = name;
+                    this.showToast("Nama berhasil disimpan.");
+                }
+            },
+
+            saveJournal() {
+                const text = document.getElementById('journalText').value.trim();
+                if (text) {
+                    this.state.journal[this.todayStr] = text;
+                    this.saveData();
+                    this.showToast("Jurnal harian tersimpan.");
+                }
+            },
+
+            exportData() {
+                const dataStr = JSON.stringify(this.state);
+                const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+                const exportFileDefaultName = 'annur_backup.json';
+
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+                this.showToast("Data berhasil diekspor.");
+            },
+
+            resetData() {
+                if (confirm("Apakah Anda yakin ingin mereset SEMUA data? Ini tidak dapat dikembalikan.")) {
+                    localStorage.removeItem('annur_data');
+                    location.reload();
+                }
+            },
+
+            // --- PWA SIMULATION FOR SINGLE FILE ---
+            // In a real Capacitor/PWA project, these would be physical files (manifest.json, service-worker.js)
+            initPWASimulation() {
+                // Generate Manifest dynamically using our actual icons
+                const manifestObj = {
+                    "name": "AN_NUR Islamic App",
+                    "short_name": "AN_NUR",
+                    "start_url": ".",
+                    "display": "standalone",
+                    "background_color": "#FAFAFA",
+                    "theme_color": "#A8BBA2",
+                    "icons": [
+                        {
+                            "src": "images/icon-192.png",
+                            "sizes": "192x192",
+                            "type": "image/png"
+                        },
+                        {
+                            "src": "images/icon-512.png",
+                            "sizes": "512x512",
+                            "type": "image/png"
+                        },
+                        {
+                            "src": "images/icon-maskable-512.png",
+                            "sizes": "512x512",
+                            "type": "image/png",
+                            "purpose": "maskable"
+                        }
+                    ]
+                };
+                const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/json' });
+                const manifestURL = URL.createObjectURL(manifestBlob);
+                const link = document.createElement('link');
+                link.rel = 'manifest';
+                link.href = manifestURL;
+                document.head.appendChild(link);
+                // Simulated Service Worker registration (Note: Blob SW might have scope issues in some environments, but shows intent)
+                if ('serviceWorker' in navigator) {
+                    const swCode = `
+                const CACHE_NAME = 'annur-v1';
+                self.addEventListener('install', e => { self.skipWaiting(); });
+                self.addEventListener('fetch', e => {
+                    // Simple network first, fallback to cache for API or assets
+                    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+                });
+            `;
+                    const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                    const swURL = URL.createObjectURL(swBlob);
+                    navigator.serviceWorker.register(swURL).then(() => {
+                        console.log('PWA Service Worker Ready (Simulated)');
+                    }).catch(e => console.log('SW Registration failed in this sandbox', e));
+                }
+            }
+        };
+
+        // Initialize App when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
+
+    </script>
+</body>
+
+</html>
